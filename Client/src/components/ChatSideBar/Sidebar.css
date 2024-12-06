@@ -1,0 +1,29 @@
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%; /* Ensure full height */
+    background-color: #2c2c2c; /* Dark background color */
+    color: white; /* Text color */
+    padding: 20px; /* Padding for spacing */
+}
+
+.room-number {
+    margin-bottom: 20px; /* Space below the room number */
+    font-size: 24px; /* Font size for room number */
+}
+
+.back-button {
+    background-color: #4a4a4a; /* Dark button background */
+    color: white; /* Button text color */
+    padding: 10px 20px; /* Button padding */
+    border: none; /* Remove border */
+    border-radius: 5px; /* Rounded corners */
+    text-decoration: none; /* Remove underline */
+    transition: background-color 0.3s; /* Smooth transition */
+}
+
+.back-button:hover {
+    background-color: #6a6a6a; /* Lighter on hover */
+}

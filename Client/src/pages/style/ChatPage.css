@@ -1,0 +1,15 @@
+.chatPage {
+    height: 100vh;
+    width: 100%;
+    display: flex;
+}
+
+.sidebar {
+    flex: 2;
+    min-height: 100%;
+}
+
+.videolayout {
+    flex:8;
+    min-height: 100%;
+}
