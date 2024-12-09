@@ -1,10 +1,18 @@
 import { useState } from "react";
 import "./JoinRoom.css";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../../store/useAuthStore";
 
 const JoinRoom = () => {
+  const { socket, connectSocket, disconnectSocket } = useAuthStore();
   const [roomNo, setRoomNo] = useState("");
   const navigate = useNavigate();
+
+  const handleConnect = () => {
+    connectSocket(roomNo);
+    navigate(`/chat/${roomNo}`);
+  };
+
   return (
     <div className="joinRoom">
       <label>Room</label>
@@ -14,7 +22,7 @@ const JoinRoom = () => {
         value={roomNo}
         onChange={(e) => setRoomNo(e.target.value)}
       />
-      <button onClick={() => navigate(`/chat/${roomNo}`)}>Connect</button>
+      <button onClick={handleConnect}>Connect</button>
     </div>
   );
 };
