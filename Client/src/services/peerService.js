@@ -26,4 +26,6 @@ const PeerConnection = (function () {
             return peerConnection;
         }
     }
-})
+});
+
+export default PeerConnection();

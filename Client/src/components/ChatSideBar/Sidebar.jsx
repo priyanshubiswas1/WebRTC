@@ -6,7 +6,21 @@ import { useAuthStore } from "../../store/useAuthStore";
 
 const Sidebar = () => {
   const { roomId } = useParams();
-  const { name, socket, onlineUsers, disconnectSocket } = useAuthStore();
+  const { setCall, setMyStream, socket, onlineUsers, disconnectSocket } =
+    useAuthStore();
+
+  const handleCallUser = async () => {
+    setCall({
+      calling: true,
+      incall: false,
+      calldisconnected: false,
+    });
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: true,
+      video: true,
+    });
+    setMyStream(stream);
+  };
 
   return (
     <div className="sidebar">
@@ -29,7 +43,7 @@ const Sidebar = () => {
                 }}
               />
               {socket.id !== user.socketId ? (
-                <FaPhoneAlt className="phone-icon" />
+                <FaPhoneAlt className="phone-icon" onClick={handleCallUser} />
               ) : (
                 "You"
               )}
