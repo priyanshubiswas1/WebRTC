@@ -6,7 +6,7 @@ import { useAuthStore } from "../../store/useAuthStore";
 
 const Sidebar = () => {
   const { roomId } = useParams();
-  const { socket, onlineUsers, disconnectSocket } = useAuthStore();
+  const { name, socket, onlineUsers, disconnectSocket } = useAuthStore();
 
   return (
     <div className="sidebar">
@@ -20,7 +20,7 @@ const Sidebar = () => {
               }`}
             >
               <Avatar
-                name={user.socketId}
+                name={user.userName}
                 size={50}
                 round="14px"
                 style={{

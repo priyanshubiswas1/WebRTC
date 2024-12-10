@@ -6,21 +6,25 @@ const BASE_URL = "http://localhost:4000/";
 export const useAuthStore = create((set, get) => ({
     socket: null,
     onlineUsers: [],
-    connectSocket: async (params) => {
+    name: "",
+    connectSocket: async ({ roomNo, name }) => {
         if (get().socket?.connected)
             return;
+
+        set({ name: name })
+
         const newSocket = io(BASE_URL);
         set({ socket: newSocket });
         newSocket.connect();
-        newSocket.emit("join", params);
+        newSocket.emit("join", { roomNo, name });
 
         newSocket.on("onJoin", (usersInRoom) => {
             set({ onlineUsers: usersInRoom });
         })
 
-        newSocket.on("userJoined", (socketId) => {
+        newSocket.on("userJoined", (user) => {
             set((state) => ({
-                onlineUsers: [...state.onlineUsers, socketId]
+                onlineUsers: [...state.onlineUsers, user]
             }))
         })
 
@@ -31,11 +35,6 @@ export const useAuthStore = create((set, get) => ({
                 const updatedUsers = state.onlineUsers.filter(user => user.socketId !== socketId);
                 return { onlineUsers: updatedUsers };
             });
-
-            // Log the updated state
-            setTimeout(() => {
-                console.log('Updated onlineUsers:', get().onlineUsers);
-            }, 0);
         });
     },
     disconnectSocket: () => {

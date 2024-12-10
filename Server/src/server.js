@@ -11,21 +11,21 @@ const userRoomMap = {};
 
 io.on("connection", (socket) => {
     console.log(`socket connected: ${socket.id}`);
-    socket.on("join", (roomId) => {
-        // userSocketMap[socket.id] = userName;
-        userRoomMap[socket.id] = roomId;
+    socket.on("join", ({ roomNo, name }) => {
+        userSocketMap[socket.id] = name;
+        userRoomMap[socket.id] = roomNo;
 
-        socket.join(roomId);
+        socket.join(roomNo);
 
-        io.in(roomId).fetchSockets().then((sockets) => {
+        io.in(roomNo).fetchSockets().then((sockets) => {
             const usersInRoom = sockets.map((socket) => ({
-                // userName: userSocketMap[socket.id];
+                userName: userSocketMap[socket.id],
                 socketId: socket.id
             }));
 
             socket.emit("onJoin", usersInRoom);
-            socket.broadcast.to(roomId).emit("userJoined", {
-                // userName: userSocketMap[socket.id],
+            socket.broadcast.to(roomNo).emit("userJoined", {
+                userName: userSocketMap[socket.id],
                 socketId: socket.id
             })
         }).catch((err) => {
@@ -34,9 +34,10 @@ io.on("connection", (socket) => {
     })
     socket.on("disconnect", () => {
         console.log("User disconnected", socket.id);
-        const roomId = userRoomMap[socket.id];
+        const roomNo = userRoomMap[socket.id];
+        delete userSocketMap[socket.id];
         delete userRoomMap[socket.id];
-        socket.broadcast.to(roomId).emit("userLeft", socket.id);
+        socket.broadcast.to(roomNo).emit("userLeft", socket.id);
     });
 });
 
