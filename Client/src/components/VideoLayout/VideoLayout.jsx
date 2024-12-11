@@ -1,15 +1,29 @@
+import { useEffect, useState } from "react";
 import { useAuthStore } from "../../store/useAuthStore";
 import "./VideoLayout.css";
 import ReactPlayer from "react-player";
 
 const VideoLayout = () => {
-  const { calling, myStream } = useAuthStore();
+  const { calling } = useAuthStore();
+  const [myStream, setMyStream] = useState(null);
+  const StartCall = async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: true,
+      video: true,
+    });
+    setMyStream(stream);
+  };
+  useEffect(() => {
+    if (calling && !myStream) {
+      StartCall();
+    }
+  }, [calling, myStream]);
   return (
     <div className="videolayout">
       <div className="streams">
         <div className="myStream">
           <h1>My Stream</h1>
-          {myStream && (
+          {calling && myStream && (
             <ReactPlayer
               url={myStream}
               height="200px"

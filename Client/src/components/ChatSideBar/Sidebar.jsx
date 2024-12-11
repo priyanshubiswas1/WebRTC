@@ -15,11 +15,6 @@ const Sidebar = () => {
       incall: false,
       calldisconnected: false,
     });
-    const stream = await navigator.mediaDevices.getUserMedia({
-      audio: true,
-      video: true,
-    });
-    setMyStream(stream);
   };
 
   return (
