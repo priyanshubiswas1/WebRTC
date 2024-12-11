@@ -10,6 +10,14 @@ export const useAuthStore = create((set, get) => ({
     calling: false,
     incall: false,
     calldisconnected: false,
+    myStream: null,
+    remoteStream: null,
+    setMyStream: (stream) => {
+        set({ myStream: stream });
+    },
+    setRemoteStream: (stream) => {
+        set({ remoteStream: stream });
+    },
     setCall: ({ calling, incall, calldisconnected }) => {
         set({ calling: calling, incall: incall, calldisconnected: calldisconnected });
     },

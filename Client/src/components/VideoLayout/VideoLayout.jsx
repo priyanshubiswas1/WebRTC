@@ -1,23 +1,31 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useAuthStore } from "../../store/useAuthStore";
+import PeerConnection from "../../services/peerService.js";
 import "./VideoLayout.css";
 import ReactPlayer from "react-player";
 
 const VideoLayout = () => {
-  const { calling } = useAuthStore();
-  const [myStream, setMyStream] = useState(null);
+  const { calling, setMyStream, myStream, setRemoteStream } = useAuthStore();
+
   const StartCall = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({
       audio: true,
       video: true,
     });
     setMyStream(stream);
+
+    const pc = PeerConnection(myStream, setRemoteStream).getInstance();
+    console.log({ pc });
+    const offer = await pc.createOffer();
+    console.log({ offer });
   };
+
   useEffect(() => {
     if (calling && !myStream) {
       StartCall();
     }
   }, [calling, myStream]);
+
   return (
     <div className="videolayout">
       <div className="streams">
