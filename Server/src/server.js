@@ -1,6 +1,11 @@
 import { app, server, io } from "./lib/socket.js";
+import path from 'path';
 
 const PORT = 4000;
+
+const __dirname = path.resolve();
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, "../client/dist")));
 
 app.get("/", (req, res) => {
     res.send("Server is up and running!");

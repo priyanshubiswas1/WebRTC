@@ -1,7 +1,8 @@
 import { create } from "zustand";
 import { io } from "socket.io-client";
 
-const BASE_URL = "http://localhost:4000/";
+const BASE_URL = "/";
+// const BASE_URL = "http://localhost:4000/";
 // const BASE_URL = "http://192.168.29.244:4000/";
 
 export const useAuthStore = create((set, get) => ({
