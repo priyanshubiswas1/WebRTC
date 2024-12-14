@@ -7,7 +7,7 @@ const app = express();
 
 const __dirname = path.resolve();
 // Serve static files from the React app
-app.use(express.static(path.join(__dirname, "../client/dist")));
+app.use(express.static(path.join(__dirname, "../Client/dist")));
 
 const server = http.createServer(app);
 const io = new Server(server, {
