@@ -1,8 +1,15 @@
-const PeerConnection = (myStream, setRemoteStream) => {
-    let peerConnection;
+// PeerConnection.js
+class PeerConnection {
+    constructor() {
+        if (PeerConnection.instance) {
+            return PeerConnection.instance;
+        }
 
-    const createPeerConnection = () => {
+        this.peerConnection = null;
+        PeerConnection.instance = this;
+    }
 
+    createPeerConnection() {
         const config = {
             iceServers: [
                 {
@@ -13,37 +20,18 @@ const PeerConnection = (myStream, setRemoteStream) => {
                 }
             ]
         };
-        peerConnection = new RTCPeerConnection(config);
 
-        //add local streams to peer connection
-        if (myStream) {
-            for (const track of myStream.getTracks()) {
-                peerConnection.addTrack(track, myStream);
-            }
-        }
-
-        //listen to remote streams and add to peer connection
-        peerConnection.ontrack = (event) => {
-            setRemoteStream(event.streams[0]);
-        }
-
-        //listen for ice candidate
-        peerConnection.onicecandidate = (event) => {
-            if (event.candidate) {
-
-            }
-        }
-
-        return peerConnection;
+        this.peerConnection = new RTCPeerConnection(config);
+        return this.peerConnection;
     }
-    return {
-        getInstance: () => {
-            if (!peerConnection) {
-                peerConnection = createPeerConnection();
-            }
-            return peerConnection;
-        }
-    }
-};
 
-export default PeerConnection;
+    getInstance() {
+        if (!this.peerConnection) {
+            this.createPeerConnection();
+        }
+        return this.peerConnection;
+    }
+}
+
+const peerConnectionInstance = new PeerConnection();
+export default peerConnectionInstance;

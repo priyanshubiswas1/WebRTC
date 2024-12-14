@@ -9,11 +9,12 @@ const Sidebar = () => {
   const { setCall, setMyStream, socket, onlineUsers, disconnectSocket } =
     useAuthStore();
 
-  const handleCallUser = async () => {
+  const handleCallUser = async (name) => {
     setCall({
       calling: true,
       incall: false,
       calldisconnected: false,
+      friendName: name,
     });
   };
 
@@ -38,7 +39,11 @@ const Sidebar = () => {
                 }}
               />
               {socket.id !== user.socketId ? (
-                <FaPhoneAlt className="phone-icon" onClick={handleCallUser} />
+                <FaPhoneAlt
+                  className="phone-icon"
+                  onClick={() => handleCallUser(user.userName)}
+                  // onClick={() => startCall}
+                />
               ) : (
                 "You"
               )}
