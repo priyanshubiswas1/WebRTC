@@ -2,8 +2,6 @@ import { app, server, io } from "./lib/socket.js";
 
 const PORT = 4000;
 
-const __dirname = path.resolve();
-
 app.get("/", (req, res) => {
     res.send("Server is up and running!");
 });
