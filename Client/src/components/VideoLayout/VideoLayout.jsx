@@ -10,10 +10,14 @@ const VideoLayout = () => {
     setMyStream,
     myStream,
     setRemoteStream,
+    remoteStream,
     name,
     friendName,
     socket,
   } = useAuthStore();
+
+  // Flag to prevent multiple emission of the same ICE candidate
+  let isIceCandidateEmitted = false;
 
   const startCall = async () => {
     try {
@@ -25,17 +29,21 @@ const VideoLayout = () => {
       });
       setMyStream(stream);
 
-      // Create peer connection
+      // Create peer connection (use a single instance for this call)
       const pc = PeerConnection.getInstance();
       stream.getTracks().forEach((track) => pc.addTrack(track, stream)); // Add local tracks to peer connection
 
       // Handle ICE candidates
       pc.onicecandidate = (event) => {
-        if (event.candidate) {
+        if (event.candidate && !isIceCandidateEmitted) {
           socket.emit("iceCandidate", {
             candidate: event.candidate,
             to: friendName,
           });
+
+          // Set the flag to prevent re-emitting the same candidate
+          isIceCandidateEmitted = true;
+          console.log("Emitting ICE candidate:", event.candidate);
         }
       };
 
@@ -48,10 +56,9 @@ const VideoLayout = () => {
         to: friendName,
         offer,
       });
-      // socket.emit("offer", { from: socket.id, to: friendName, offer });
       socket.emit("offer", { from: name, to: friendName, offer });
 
-      // Handle remote stream
+      // Listen to remote stream
       pc.ontrack = (event) => {
         setRemoteStream(event.streams[0]);
       };
@@ -68,9 +75,22 @@ const VideoLayout = () => {
 
   useEffect(() => {
     socket.on("offer", async ({ from, offer }) => {
-      console.log("Received offer:", { from, offer });
+      console.log("CALLING");
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+        video: true,
+      });
+      setMyStream(stream);
+
       const pc = PeerConnection.getInstance();
-      await pc.setRemoteDescription(offer);
+      stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+
+      pc.ontrack = (event) => {
+        setRemoteStream(event.streams[0]);
+      };
+
+      console.log("Received offer:", { from, offer });
+      await pc.setRemoteDescription(offer); // Set the remote description before adding ICE candidates
 
       // Create and send answer
       const answer = await pc.createAnswer();
@@ -88,13 +108,6 @@ const VideoLayout = () => {
         answer: pc.localDescription,
       });
 
-      // setCall({
-      //   calling: true,
-      //   incall: true,
-      //   calldisconnected: false,
-      //   friendName: from,
-      // });
-
       // Handle ICE candidates for this connection
       pc.onicecandidate = (event) => {
         if (event.candidate) {
@@ -102,6 +115,7 @@ const VideoLayout = () => {
             candidate: event.candidate,
             to: from,
           });
+          console.log("Emitting ICE candidate:", event.candidate);
         }
       };
     });
@@ -109,7 +123,7 @@ const VideoLayout = () => {
     socket.on("answer", async ({ from, answer }) => {
       console.log("Received answer:", { from, answer });
       const pc = PeerConnection.getInstance();
-      await pc.setRemoteDescription(answer);
+      await pc.setRemoteDescription(answer); // Ensure remote description is set before adding ICE candidates
 
       setCall({
         calling: true,
@@ -121,8 +135,17 @@ const VideoLayout = () => {
 
     socket.on("iceCandidate", async ({ from, candidate }) => {
       const pc = PeerConnection.getInstance();
-      if (candidate) {
+
+      // Ensure the remote description is set before adding the candidate
+      if (pc.remoteDescription) {
         await pc.addIceCandidate(new RTCIceCandidate(candidate));
+        console.log("Candidate added:", candidate);
+      } else {
+        // If remote description is not yet set, save the candidate to be added later
+        console.log(
+          "Waiting for remote description to be set before adding ICE candidate"
+        );
+        // You can queue the candidate for later processing if needed
       }
     });
 
@@ -152,9 +175,9 @@ const VideoLayout = () => {
         </div>
         <div className="remoteStream">
           <h1>Remote Stream</h1>
-          {myStream && (
+          {remoteStream && (
             <video
-              ref={(ref) => ref && (ref.srcObject = myStream)}
+              ref={(ref) => ref && (ref.srcObject = remoteStream)}
               height="200px"
               width="300px"
               autoPlay

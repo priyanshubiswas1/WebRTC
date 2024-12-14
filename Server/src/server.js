@@ -22,13 +22,13 @@ io.on("connection", (socket) => {
         io.in(roomNo).fetchSockets().then((sockets) => {
             const usersInRoom = sockets.map((socket) => ({
                 userName: userSocketMap[socket.id],
-                socketId: socket.id
+                socketId: socket.id,
             }));
 
             socket.emit("onJoin", usersInRoom);
             socket.broadcast.to(roomNo).emit("userJoined", {
                 userName: userSocketMap[socket.id],
-                socketId: socket.id
+                socketId: socket.id,
             });
         }).catch((err) => {
             console.error("Error fetching sockets:", err);
@@ -36,12 +36,7 @@ io.on("connection", (socket) => {
     });
 
     socket.on("offer", ({ from, to, offer }) => {
-        // console.log("Received offer from:", from);
-        // console.log("Sending offer to:", to);
-        // console.log({ offer });
-
         const id = Object.keys(userSocketMap).find(key => userSocketMap[key] === to);
-        console.log("Offer ID:", id);
         if (id) {
             io.to(id).emit("offer", { from, to, offer });
         } else {
@@ -50,12 +45,7 @@ io.on("connection", (socket) => {
     });
 
     socket.on("answer", ({ from, to, answer }) => {
-        // console.log("Received offer from:", from);
-        // console.log("Sending offer to:", to);
-        // console.log({ answer });
-
         const id = Object.keys(userSocketMap).find(key => userSocketMap[key] === to);
-        console.log("Answer ID:", id);
         if (id) {
             io.to(id).emit("answer", { from, to, answer });
         } else {
