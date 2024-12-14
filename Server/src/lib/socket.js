@@ -1,8 +1,12 @@
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
+import path from 'path';
 
 const app = express();
+
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, "../client/dist")));
 
 const server = http.createServer(app);
 const io = new Server(server, {
